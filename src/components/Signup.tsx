@@ -25,7 +25,7 @@ const Signup: React.FC = () => {
 
     try {
       // 2. Supabase Signup
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {

@@ -17,7 +17,7 @@ const Login: React.FC = () => {
 
     try {
       // Supabase handles the session and tokens automatically
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
