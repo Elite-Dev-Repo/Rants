@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
+import { supabase } from "../supabaseClient"; // Updated import
 import toast, { Toaster } from "react-hot-toast";
 
 const Signup: React.FC = () => {
@@ -16,26 +16,35 @@ const Signup: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Password Validation
+    // 1. Password Validation
     if (formData.password !== formData.confirmPassword) {
       return toast.error("Passwords do not match!");
     }
 
     setIsLoading(true);
-    const { confirmPassword, ...registerData } = formData;
 
     try {
-      await api.post("/blogapi/user/register/", registerData);
-      toast.success("Account created! Please log in.");
+      // 2. Supabase Signup
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          // This stores the username in the user's profile metadata
+          data: {
+            username: formData.username,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      // 3. Success Handling
+      // Note: By default, Supabase sends a confirmation email.
+      toast.success("Signup successful! Please check your email to confirm.");
       navigate("/login");
     } catch (error: any) {
       console.error("Signup error:", error);
-      const serverError = error.response?.data;
-      // Extract specific error messages if they exist (e.g., username already taken)
-      const errorMsg = serverError
-        ? Object.values(serverError).flat()[0]
-        : "Signup failed";
-      toast.error(String(errorMsg));
+      toast.error(error.message || "Signup failed");
     } finally {
       setIsLoading(false);
     }
@@ -52,12 +61,11 @@ const Signup: React.FC = () => {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 md:p-6">
       <Toaster position="top-center" />
 
-      {/* Container: flex-row-reverse keeps form on right for desktop, stacks for mobile */}
       <div className="flex w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl transition-all flex-row-reverse">
         {/* Signup Form Section */}
         <div className="w-full px-6 py-10 sm:px-10 md:w-1/2 lg:px-14 flex flex-col justify-center">
           <div className="mb-8 text-center md:text-left">
-            <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+            <h2 className="text-3xl font-extrabold text-indigo-600 tracking-tight">
               Join Rants.
             </h2>
             <p className="mt-2 text-sm text-gray-500">
@@ -172,7 +180,7 @@ const Signup: React.FC = () => {
           </p>
         </div>
 
-        {/* Visual Branding Section (Hidden on mobile) */}
+        {/* Visual Branding Section */}
         <div className="hidden bg-indigo-600 md:flex md:w-1/2 flex-col justify-center p-12 text-white relative">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]"></div>
 

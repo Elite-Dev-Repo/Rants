@@ -7,47 +7,73 @@ import {
   Trash2,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import api from "./api";
+import { supabase } from "./supabaseClient"; // Updated import
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 const App: React.FC = () => {
   const navigate = useNavigate();
   const [openNav, setOpenNav] = useState(false);
-  const [user, setUser] = useState<{ name: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; id: string } | null>(null);
   const [makePost, setMakePost] = useState({ title: "", content: "" });
   const [myPosts, setMyPosts] = useState<any[]>([]);
 
-  const getUserProfile = () => {
-    api
-      .get("/blogapi/user-profile/")
-      .then((res: any) =>
-        setUser({ name: res.data.username || res.data.name || "User" }),
-      )
-      .catch(() => setUser({ name: "Writer" }));
+  // 1. Get User Profile from Supabase Auth
+  const getUserProfile = async () => {
+    const {
+      data: { user: sbUser },
+    } = await supabase.auth.getUser();
+    if (sbUser) {
+      setUser({
+        name: sbUser.user_metadata?.username || "Writer",
+        id: sbUser.id,
+      });
+      return sbUser.id;
+    }
+    return null;
   };
 
-  const getPosts = () => {
-    api
-      .get("/blogapi/posts/")
-      .then((res: any) => setMyPosts(res.data))
-      .catch((err: any) => console.error("Error fetching posts:", err));
+  // 2. Fetch only posts belonging to the logged-in user
+  const getPosts = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("posts")
+      .select("*")
+      .eq("author_id", userId) // Filter by current user ID
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching posts:", error);
+    } else {
+      setMyPosts(data || []);
+    }
   };
 
-  const createPost = () => {
-    api
-      .post("/blogapi/posts/", makePost)
-      .then(() => {
-        getPosts();
-        setMakePost({ title: "", content: "" });
-        toast.success("Post published!");
-      })
-      .catch(() => toast.error("Failed to publish post."));
+  // 3. Create a new post in Supabase
+  const createPost = async () => {
+    if (!user) return;
+
+    const { error } = await supabase.from("posts").insert([
+      {
+        title: makePost.title,
+        content: makePost.content,
+        author_id: user.id,
+        author_name: user.name,
+      },
+    ]);
+
+    if (error) {
+      toast.error("Failed to publish post.");
+    } else {
+      toast.success("Post published!");
+      setMakePost({ title: "", content: "" });
+      getPosts(user.id); // Refresh the list
+    }
   };
 
   useEffect(() => {
-    getUserProfile();
-    getPosts();
+    getUserProfile().then((userId) => {
+      if (userId) getPosts(userId);
+    });
   }, []);
 
   const handleCreatePost = (e: React.FormEvent) => {
@@ -55,23 +81,23 @@ const App: React.FC = () => {
     createPost();
   };
 
-  const handleLogout = (e: React.MouseEvent) => {
+  const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
-    localStorage.clear();
+    await supabase.auth.signOut();
     navigate("/login");
   };
 
-  const deletePost = (id: number) => {
+  // 4. Delete a post from Supabase
+  const deletePost = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this rant?")) {
-      api
-        .delete(`/blogapi/posts/delete/${id}/`)
-        .then((res) => {
-          if (res.status === 204) {
-            setMyPosts(myPosts.filter((post) => post.id !== id));
-            toast.success("Rant deleted successfully!");
-          }
-        })
-        .catch(() => toast.error("Unauthorized to delete this post."));
+      const { error } = await supabase.from("posts").delete().eq("id", id);
+
+      if (error) {
+        toast.error("Unauthorized to delete this post.");
+      } else {
+        setMyPosts(myPosts.filter((post) => post.id !== id));
+        toast.success("Rant deleted successfully!");
+      }
     }
   };
 
@@ -127,21 +153,17 @@ const App: React.FC = () => {
       </nav>
 
       <main className="max-w-7xl mx-auto py-6 md:py-10 px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <header className="mb-8 md:mb-12">
           <h1 className="text-2xl md:text-4xl font-extrabold text-gray-900 leading-tight">
-            Good Morning, {user ? user.name : "Writer"}!
+            Hello There 😊, {user ? user.name : "Writer"}!
           </h1>
           <p className="text-gray-500 mt-2 text-sm md:text-base">
             What's on your mind today? Your readers are waiting.
           </p>
         </header>
 
-        {/* Responsive Layout Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content Area */}
           <div className="lg:col-span-2 space-y-8 md:space-y-12">
-            {/* Form Section */}
             <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 md:p-8">
               <h2 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <span className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
@@ -151,14 +173,10 @@ const App: React.FC = () => {
               </h2>
               <form onSubmit={handleCreatePost} className="space-y-5">
                 <div>
-                  <label
-                    htmlFor="title"
-                    className="block text-sm font-bold text-gray-700 mb-1"
-                  >
+                  <label className="block text-sm font-bold text-gray-700 mb-1">
                     Title
                   </label>
                   <input
-                    id="title"
                     type="text"
                     placeholder="Give your rant a name..."
                     className="w-full text-lg md:text-xl font-semibold border-none focus:ring-0 placeholder:text-gray-300 p-0"
@@ -170,14 +188,10 @@ const App: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label
-                    htmlFor="content"
-                    className="block text-sm font-bold text-gray-700 mb-1"
-                  >
+                  <label className="block text-sm font-bold text-gray-700 mb-1">
                     Content
                   </label>
                   <textarea
-                    id="content"
                     rows={5}
                     placeholder="Tell your story..."
                     className="w-full border-none focus:ring-0 resize-none text-gray-600 placeholder:text-gray-300 p-0 text-base"
@@ -213,7 +227,6 @@ const App: React.FC = () => {
               </form>
             </section>
 
-            {/* Posts Feed Section */}
             <section className="space-y-6">
               <h2 className="text-xl font-bold text-gray-800 px-1">
                 Your Recent Rants
@@ -228,24 +241,21 @@ const App: React.FC = () => {
                       <button
                         onClick={() => deletePost(post.id)}
                         className="absolute top-4 right-4 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all md:opacity-0 md:group-hover:opacity-100"
-                        title="Delete Rant"
                       >
                         <Trash2 size={18} />
                       </button>
-
                       <h3 className="text-lg font-bold text-indigo-600 pr-8 line-clamp-1">
                         {post.title}
                       </h3>
                       <p className="text-gray-600 mt-3 line-clamp-4 leading-relaxed text-sm">
                         {post.content}
                       </p>
-
                       <div className="mt-6 pt-4 border-t border-gray-50 flex justify-between items-center">
-                        <span className="text-[10px] md:text-xs text-gray-400 font-medium">
+                        <span className="text-xs text-gray-400 font-medium">
                           {new Date(post.created_at).toLocaleDateString()}
                         </span>
                         <button
-                          onClick={() => navigate(`/posts/${post.id}`)}
+                          onClick={() => navigate(`/rants/${post.id}`)}
                           className="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1"
                         >
                           Read More →
@@ -264,7 +274,6 @@ const App: React.FC = () => {
             </section>
           </div>
 
-          {/* Sidebar Area */}
           <div className="space-y-6">
             <section className="bg-indigo-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
               <div className="relative z-10">
@@ -280,15 +289,8 @@ const App: React.FC = () => {
                       Total Rants
                     </p>
                   </div>
-                  <div className="bg-white/10 p-4 rounded-2xl">
-                    <p className="text-3xl md:text-4xl font-black">1.2k</p>
-                    <p className="text-xs text-indigo-200 mt-1 font-medium">
-                      Reader Views
-                    </p>
-                  </div>
                 </div>
               </div>
-              {/* Decorative Circle */}
               <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-500 rounded-full blur-3xl opacity-20"></div>
             </section>
           </div>

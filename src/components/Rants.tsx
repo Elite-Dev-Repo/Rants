@@ -1,7 +1,8 @@
 import { ChevronDown, House, LogOut } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api.ts";
+import { supabase } from "../supabaseClient"; // Updated import
+import toast, { Toaster } from "react-hot-toast";
 
 const Rants: React.FC = () => {
   const navigate = useNavigate();
@@ -11,35 +12,58 @@ const Rants: React.FC = () => {
   const [user, setUser] = useState<{ name: string } | null>(null);
 
   useEffect(() => {
-    api
-      .get("/blogapi/user-profile/")
-      .then((res: any) => {
-        setUser({ name: res.data.username || res.data.name });
-      })
-      .catch(() => setUser({ name: "Writer" }));
+    const fetchData = async () => {
+      setLoading(true);
 
-    api
-      .get("/blogapi/allposts/")
-      .then((res: any) => {
-        setRants(res.data);
-        setLoading(false);
-      })
-      .catch((err: any) => {
-        console.error("Error fetching community rants:", err);
-        setLoading(false);
-      });
+      // 1. Get User Profile from Supabase Auth Metadata
+      const {
+        data: { user: sbUser },
+      } = await supabase.auth.getUser();
+      if (sbUser) {
+        setUser({
+          name:
+            sbUser.user_metadata?.username ||
+            sbUser.email?.split("@")[0] ||
+            "Writer",
+        });
+      }
+
+      // 2. Fetch ALL Posts from the 'posts' table
+      const { data, error } = await supabase
+        .from("posts")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching rants:", error.message);
+        toast.error("Could not load community rants.");
+      } else {
+        setRants(data || []);
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
   }, []);
 
-  const handleLogout = (e: React.MouseEvent) => {
+  const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
-    localStorage.clear();
-    navigate("/login");
+    // Use Supabase official sign-out (handles token clearing for you)
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Error logging out");
+    } else {
+      navigate("/login");
+    }
   };
 
   const userInitial = user?.name ? user.name[0].toUpperCase() : "?";
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster />
+
       {/* Responsive Navigation */}
       <nav className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -107,7 +131,6 @@ const Rants: React.FC = () => {
             </p>
           </div>
         ) : (
-          /* Grid: 1 col on mobile, 2 col on tablet, 3 col on desktop */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {rants.map((post) => (
               <article

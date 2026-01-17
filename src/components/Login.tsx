@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
+import { supabase } from "../supabaseClient"; // Updated import
 import toast, { Toaster } from "react-hot-toast";
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
-    username: "",
+    email: "", // Changed 'username' to 'email' to match Supabase logic
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -17,13 +16,18 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post("/blogapi/token/", formData);
-      localStorage.setItem(ACCESS_TOKEN, response.data.access);
-      localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
+      // Supabase handles the session and tokens automatically
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) throw error;
+
       toast.success("Welcome back!");
       navigate("/");
     } catch (error: any) {
-      toast.error("Invalid credentials. Please try again.");
+      toast.error(error.message || "Invalid credentials. Please try again.");
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -34,12 +38,11 @@ const Login: React.FC = () => {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 md:p-6">
       <Toaster position="top-center" />
 
-      {/* Container: Max-width 4xl, changes to full width on mobile */}
       <div className="flex w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl transition-all">
-        {/* Left Side: Login Form (Full width on mobile, 1/2 on tablet+) */}
+        {/* Left Side: Login Form */}
         <div className="w-full px-6 py-10 sm:px-10 md:w-1/2 lg:px-14 flex flex-col justify-center">
           <div className="mb-8 text-center md:text-left">
-            <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+            <h2 className="text-3xl font-extrabold text-indigo-600 tracking-tight">
               Rants.
             </h2>
             <h3 className="text-xl font-bold text-gray-800 mt-6">
@@ -53,16 +56,16 @@ const Login: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
-                Username
+                Email Address
               </label>
               <input
-                type="text"
+                type="email"
                 required
                 className="mt-1 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all"
-                placeholder="Your username"
-                value={formData.username}
+                placeholder="name@example.com"
+                value={formData.email}
                 onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value })
+                  setFormData({ ...formData, email: e.target.value })
                 }
               />
             </div>
@@ -119,9 +122,8 @@ const Login: React.FC = () => {
           </p>
         </div>
 
-        {/* Right Side: Visual Branding (Hidden on small screens) */}
+        {/* Right Side: Visual Branding */}
         <div className="hidden bg-indigo-600 md:flex md:w-1/2 flex-col justify-center p-12 text-white relative">
-          {/* Subtle Background Pattern */}
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]"></div>
 
           <div className="relative z-10">
