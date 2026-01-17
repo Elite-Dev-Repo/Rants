@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
+import toast, { Toaster } from "react-hot-toast";
 
 const Signup: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -9,45 +10,34 @@ const Signup: React.FC = () => {
     password: "",
     confirmPassword: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Signing up with:", formData);
-    // Add your authentication logic here
-    // Filter out confirmPassword before sending
+
+    // Password Validation
+    if (formData.password !== formData.confirmPassword) {
+      return toast.error("Passwords do not match!");
+    }
+
+    setIsLoading(true);
     const { confirmPassword, ...registerData } = formData;
 
     try {
       await api.post("/blogapi/user/register/", registerData);
+      toast.success("Account created! Please log in.");
       navigate("/login");
     } catch (error: any) {
-      console.error("Signup error details:", {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-        url: error.response?.config?.url,
-        finalUrl: error.request?.responseURL,
-      });
-
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        // If data is HTML (like 404 page), truncate it for alert
-        const data = error.response.data;
-        const alertMsg =
-          typeof data === "string" && data.startsWith("<!DOCTYPE")
-            ? `Server returned HTML (likely 404 or 500). Check console.`
-            : JSON.stringify(data);
-
-        alert(alertMsg);
-      } else if (error.request) {
-        // The request was made but no response was received
-        alert("No response received from server.");
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        alert(`Error: ${error.message}`);
-      }
+      console.error("Signup error:", error);
+      const serverError = error.response?.data;
+      // Extract specific error messages if they exist (e.g., username already taken)
+      const errorMsg = serverError
+        ? Object.values(serverError).flat()[0]
+        : "Signup failed";
+      toast.error(String(errorMsg));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,42 +49,47 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="flex w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-xl m-4 flex-row-reverse">
-        {/* Right Side: Signup Form */}
-        <div className="w-full px-8 py-10 md:w-1/2 lg:px-12">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 md:p-6">
+      <Toaster position="top-center" />
+
+      {/* Container: flex-row-reverse keeps form on right for desktop, stacks for mobile */}
+      <div className="flex w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl transition-all flex-row-reverse">
+        {/* Signup Form Section */}
+        <div className="w-full px-6 py-10 sm:px-10 md:w-1/2 lg:px-14 flex flex-col justify-center">
           <div className="mb-8 text-center md:text-left">
-            <h2 className="text-3xl font-bold text-gray-800">Create Account</h2>
-            <p className="mt-2 text-gray-500">
+            <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+              Join Rants.
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
               Join our community of writers today.
             </p>
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
                 Username
               </label>
               <input
                 name="username"
                 type="text"
                 required
-                className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-all"
-                placeholder="John Doe"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all"
+                placeholder="johndoe"
                 value={formData.username}
                 onChange={handleChange}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
                 Email Address
               </label>
               <input
                 name="email"
                 type="email"
                 required
-                className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-all"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all"
                 placeholder="name@example.com"
                 value={formData.email}
                 onChange={handleChange}
@@ -103,28 +98,28 @@ const Signup: React.FC = () => {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
                   Password
                 </label>
                 <input
                   name="password"
                   type="password"
                   required
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-all"
+                  className="mt-1 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
                   Confirm
                 </label>
                 <input
                   name="confirmPassword"
                   type="password"
                   required
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-all"
+                  className="mt-1 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all"
                   placeholder="••••••••"
                   value={formData.confirmPassword}
                   onChange={handleChange}
@@ -132,19 +127,25 @@ const Signup: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-start">
+            <div className="flex items-start py-2">
               <input
                 type="checkbox"
                 required
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
               />
-              <span className="ml-2 text-sm text-gray-600">
+              <span className="ml-2 text-xs text-gray-600">
                 I agree to the{" "}
-                <a href="#" className="text-indigo-600 underline">
-                  Terms of Service
+                <a
+                  href="#"
+                  className="text-indigo-600 font-semibold hover:underline"
+                >
+                  Terms
                 </a>{" "}
                 and{" "}
-                <a href="#" className="text-indigo-600 underline">
+                <a
+                  href="#"
+                  className="text-indigo-600 font-semibold hover:underline"
+                >
                   Privacy Policy
                 </a>
                 .
@@ -153,50 +154,55 @@ const Signup: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-indigo-600 px-4 py-3 font-bold text-white hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-colors shadow-lg shadow-indigo-200"
-              onClick={function () {
-                localStorage.clear();
-                return <Navigate to="/login" />;
-              }}
+              disabled={isLoading}
+              className={`w-full rounded-xl bg-indigo-600 px-4 py-4 font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:bg-indigo-700 active:scale-95 ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
             >
-              Sign Up
+              {isLoading ? "Creating Account..." : "Sign Up"}
             </button>
           </form>
 
           <p className="mt-8 text-center text-sm text-gray-600">
             Already have an account?{" "}
-            <a
-              href="/login"
+            <button
+              onClick={() => navigate("/login")}
               className="font-bold text-indigo-600 hover:underline"
             >
               Log In
-            </a>
+            </button>
           </p>
         </div>
 
-        {/* Left Side: Inspiration Panel (Hidden on Mobile) */}
-        <div className="hidden bg-indigo-600 md:flex md:w-1/2 flex-col justify-center p-12 text-white">
-          <div className="space-y-6">
-            <h3 className="text-4xl font-bold leading-tight">
+        {/* Visual Branding Section (Hidden on mobile) */}
+        <div className="hidden bg-indigo-600 md:flex md:w-1/2 flex-col justify-center p-12 text-white relative">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]"></div>
+
+          <div className="relative z-10 space-y-6">
+            <h3 className="text-4xl font-black leading-tight">
               Your voice matters.
             </h3>
             <p className="text-lg text-indigo-100 italic">
               "The best way to predict the future is to write it."
             </p>
-            <ul className="space-y-3 pt-4">
-              <li className="flex items-center text-indigo-100">
-                <span className="mr-2 text-green-400">✓</span> Unlimited blog
-                posts
-              </li>
-              <li className="flex items-center text-indigo-100">
-                <span className="mr-2 text-green-400">✓</span> Custom newsletter
-                integration
-              </li>
-              <li className="flex items-center text-indigo-100">
-                <span className="mr-2 text-green-400">✓</span> Analytics
-                dashboard
-              </li>
-            </ul>
+
+            <div className="space-y-4 pt-6">
+              {[
+                "Unlimited blog posts",
+                "Community feedback",
+                "Analytics dashboard",
+              ].map((feature) => (
+                <div
+                  key={feature}
+                  className="flex items-center gap-3 text-indigo-100"
+                >
+                  <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center">
+                    <span className="text-xs">✓</span>
+                  </div>
+                  <span className="text-sm font-medium">{feature}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-10 h-1.5 w-16 bg-white rounded-full opacity-30"></div>
           </div>
         </div>
       </div>

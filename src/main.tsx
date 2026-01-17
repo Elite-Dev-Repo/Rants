@@ -8,6 +8,7 @@ import Signup from "./components/Signup.tsx";
 import Rants from "./components/Rants.tsx";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import Error from "./components/Error.tsx";
+import PostDetail from "./components/PostDetail";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,11 @@ const router = createBrowserRouter([
       </ProtectedRoutes>
     ),
     errorElement: <Error />,
+  },
+
+  {
+    path: "/rants/:pk",
+    element: <PostDetail />,
   },
   {
     path: "/login",
@@ -40,5 +46,5 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <RouterProvider router={router} />
-  </StrictMode>
+  </StrictMode>,
 );
