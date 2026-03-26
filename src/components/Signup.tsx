@@ -163,7 +163,7 @@ const Signup: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full rounded-xl bg-indigo-600 px-4 py-4 font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:bg-indigo-700 active:scale-95 ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
+              className={`w-full rounded-xl  bg-indigo-500 px-4 py-4 font-bold text-white shadow-lg shadow-indigo-200 transition-all hover: bg-indigo-700 active:scale-95 ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
             >
               {isLoading ? "Creating Account..." : "Sign Up"}
             </button>
@@ -181,7 +181,7 @@ const Signup: React.FC = () => {
         </div>
 
         {/* Visual Branding Section */}
-        <div className="hidden bg-indigo-600 md:flex md:w-1/2 flex-col justify-center p-12 text-white relative">
+        <div className="hidden  bg-indigo-600   md:flex md:w-1/2 flex-col justify-center p-12 text-white relative">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]"></div>
 
           <div className="relative z-10 space-y-6">

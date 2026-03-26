@@ -83,7 +83,7 @@ const PostDetail: React.FC = () => {
 
           <div className="flex flex-wrap items-center gap-y-4 gap-x-8 text-gray-500 border-y py-6 border-gray-100">
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xs uppercase">
+              <div className="h-8 w-8 rounded-full  bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xs uppercase">
                 {post.author_name?.[0] || "C"}
               </div>
               <div className="flex flex-col">
@@ -138,7 +138,7 @@ const PostDetail: React.FC = () => {
               Join the conversation and share your thoughts with the community.
             </p>
             <a href="/">
-              <button className="bg-indigo-600 text-white px-8 py-3 rounded-full font-bold hover:bg-indigo-700 transition-all shadow-md">
+              <button className=" bg-indigo-600   text-white px-8 py-3 rounded-full font-bold hover: bg-indigo-700 transition-all shadow-md">
                 Share Rant
               </button>
             </a>

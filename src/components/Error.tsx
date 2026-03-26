@@ -9,7 +9,7 @@ const Error: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full text-center space-y-8">
         {/* Icon Container */}
-        <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-indigo-100 mb-8 animate-pulse">
+        <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full  bg-indigo-100 mb-8 animate-pulse">
           <AlertTriangle className="h-12 w-12 text-indigo-600" />
         </div>
 
@@ -28,7 +28,7 @@ const Error: React.FC = () => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
           <button
             onClick={() => navigate("/")}
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white  bg-indigo-600   hover: bg-indigo-700 transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             <Home className="mr-2 h-5 w-5" />
             Go Home

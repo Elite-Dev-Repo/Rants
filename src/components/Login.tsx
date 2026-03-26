@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient"; // Updated import
+import { supabase } from "../supabaseClient";
 import toast, { Toaster } from "react-hot-toast";
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
-    email: "", // Changed 'username' to 'email' to match Supabase logic
+    email: "",
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +43,7 @@ const Login: React.FC = () => {
         <div className="w-full px-6 py-10 sm:px-10 md:w-1/2 lg:px-14 flex flex-col justify-center">
           <div className="mb-8 text-center md:text-left">
             <h2 className="text-3xl font-extrabold text-indigo-600 tracking-tight">
-              Rants.
+              Rants
             </h2>
             <h3 className="text-xl font-bold text-gray-800 mt-6">
               Welcome Back
@@ -105,7 +105,7 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full rounded-xl bg-indigo-600 px-4 py-4 font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:bg-indigo-700 active:scale-95 ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
+              className={`w-full rounded-xl  bg-indigo-600   px-4 py-4 font-bold text-white shadow-lg shadow-indigo-200 transition-all hover: bg-indigo-700 active:scale-95 ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
             >
               {isLoading ? "Signing In..." : "Sign In"}
             </button>
@@ -123,7 +123,7 @@ const Login: React.FC = () => {
         </div>
 
         {/* Right Side: Visual Branding */}
-        <div className="hidden bg-indigo-600 md:flex md:w-1/2 flex-col justify-center p-12 text-white relative">
+        <div className="hidden  bg-indigo-600   md:flex md:w-1/2 flex-col justify-center p-12 text-white relative">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]"></div>
 
           <div className="relative z-10">

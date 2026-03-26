@@ -35,8 +35,8 @@ const Rants: React.FC = () => {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Error fetching rants:", error.message);
-        toast.error("Could not load community rants.");
+        console.error("Error fetching Rants:", error.message);
+        toast.error("Could not load community Rants.");
       } else {
         setRants(data || []);
       }
@@ -71,7 +71,7 @@ const Rants: React.FC = () => {
             className="text-xl md:text-2xl font-bold text-indigo-600 cursor-pointer tracking-tight"
             onClick={() => navigate("/")}
           >
-            Rants.
+            Rants
           </span>
 
           <div
@@ -99,7 +99,7 @@ const Rants: React.FC = () => {
               Welcome, {user?.name || "..."}
             </span>
 
-            <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold uppercase text-sm">
+            <div className="h-8 w-8 md:h-10 md:w-10 rounded-full  bg-indigo-600   text-white flex items-center justify-center font-bold uppercase text-sm">
               {userInitial}
             </div>
             <ChevronDown
@@ -127,7 +127,7 @@ const Rants: React.FC = () => {
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
             <p className="text-gray-400 font-medium">
-              Fetching the latest rants...
+              Fetching the latest Rants...
             </p>
           </div>
         ) : (
@@ -138,7 +138,7 @@ const Rants: React.FC = () => {
                 className="flex flex-col bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="flex-1">
-                  <div className="text-[10px] text-indigo-600 font-black uppercase tracking-[0.2em] mb-3 bg-indigo-50 w-fit px-2 py-1 rounded">
+                  <div className="text-[10px] text-indigo-600 font-black uppercase tracking-[0.2em] mb-3  bg-indigo-50 w-fit px-2 py-1 rounded">
                     Public Feed
                   </div>
                   <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-snug">
@@ -176,7 +176,7 @@ const Rants: React.FC = () => {
         {!loading && rants.length === 0 && (
           <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-100">
             <p className="text-gray-400 font-medium">
-              No community rants found yet.
+              No community Rants found yet.
             </p>
           </div>
         )}

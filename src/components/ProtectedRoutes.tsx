@@ -15,8 +15,6 @@ function ProtectedRoutes({ children }: ProtectedRoutesProps) {
 
   const checkAuth = async () => {
     try {
-      // Supabase automatically checks if the session is valid
-      // and refreshes it if necessary.
       const {
         data: { session },
       } = await supabase.auth.getSession();

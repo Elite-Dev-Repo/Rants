@@ -71,6 +71,7 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    console.log(crypto.randomUUID());
     getUserProfile().then((userId) => {
       if (userId) getPosts(userId);
     });
@@ -114,7 +115,7 @@ const App: React.FC = () => {
             className="text-xl md:text-2xl font-bold text-indigo-600 tracking-tight cursor-pointer"
             onClick={() => navigate("/")}
           >
-            Rants.
+            Rants
           </span>
 
           <div
@@ -141,7 +142,7 @@ const App: React.FC = () => {
             <span className="hidden md:block text-sm font-medium text-gray-700">
               Welcome, {user ? user.name : "..."}
             </span>
-            <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold uppercase text-sm">
+            <div className="h-8 w-8 md:h-10 md:w-10 rounded-full  bg-indigo-600   text-white flex items-center justify-center font-bold uppercase text-sm">
               {userInitial}
             </div>
             <ChevronDown
@@ -155,7 +156,7 @@ const App: React.FC = () => {
       <main className="max-w-7xl mx-auto py-6 md:py-10 px-4 sm:px-6 lg:px-8">
         <header className="mb-8 md:mb-12">
           <h1 className="text-2xl md:text-4xl font-extrabold text-gray-900 leading-tight">
-            Hello There 😊, {user ? user.name : "Writer"}!
+            Hello, {user ? user.name : "Writer"}!
           </h1>
           <p className="text-gray-500 mt-2 text-sm md:text-base">
             What's on your mind today? Your readers are waiting.
@@ -166,7 +167,7 @@ const App: React.FC = () => {
           <div className="lg:col-span-2 space-y-8 md:space-y-12">
             <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 md:p-8">
               <h2 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <span className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
+                <span className="p-2  bg-indigo-50 rounded-lg text-indigo-600">
                   <NotebookPen size={20} />
                 </span>
                 Create New Post
@@ -206,20 +207,20 @@ const App: React.FC = () => {
                   <div className="flex gap-1 md:gap-3">
                     <button
                       type="button"
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 hover:text-indigo-600 hover: bg-indigo-50 rounded-lg transition-colors"
                     >
                       <Image size={20} />
                     </button>
                     <button
                       type="button"
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 hover:text-indigo-600 hover: bg-indigo-50 rounded-lg transition-colors"
                     >
                       <Link size={20} />
                     </button>
                   </div>
                   <button
                     type="submit"
-                    className="w-full sm:w-auto bg-indigo-600 text-white px-8 py-3 rounded-full font-bold hover:bg-indigo-700 transition-all shadow-md active:scale-95"
+                    className="w-full sm:w-auto  bg-indigo-600   text-white px-8 py-3 rounded-full font-bold hover: bg-indigo-700 transition-all shadow-md active:scale-95"
                   >
                     Publish Post
                   </button>
@@ -275,7 +276,7 @@ const App: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            <section className="bg-indigo-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+            <section className=" bg-indigo-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
               <div className="relative z-10">
                 <h3 className="font-bold text-indigo-200 mb-6 uppercase tracking-widest text-xs">
                   Analytics Dashboard
@@ -291,7 +292,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-500 rounded-full blur-3xl opacity-20"></div>
+              <div className="absolute -bottom-10 -right-10 w-32 h-32  bg-indigo-500 rounded-full blur-3xl opacity-20"></div>
             </section>
           </div>
         </div>
